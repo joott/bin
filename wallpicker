@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+FOLDER=~/Pictures/wallpapers
+
+CHOICE=$(swayimg -a wallpicker --gallery $FOLDER)
+
+case $CHOICE in
+    *.*) wallust run $CHOICE ;;
+    *) exit 0 ;;
+esac
+
+swaymsg reload
+killall dunst
+notify-send "Updated wallpaper and colorscheme."

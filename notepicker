@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+# pass in notes directory as parameter
+NOTEDIR=$1
+SUFFIX=''
+
+opennote () {
+    kitty --directory $NOTEDIR$SUFFIX nvim $notefile
+}
+
+journal () {
+    cd journal
+    SUFFIX=/journal
+    choice=$(echo -e "New\n$(ls -1 *.md)" | rofi -dmenu -p "Entries") || exit 0
+
+    case $choice in
+        New) notefile=$(date +%F_%T.md | tr ':' '-'); opennote ;;
+        *.md) notefile=$choice; opennote ;;
+        *) exit 0 ;;
+    esac
+}
+
+pick () {
+    cd $NOTEDIR
+    choice=$(echo -e "Journal\n$(ls -t1 *.md)" | rofi -dmenu -p "Notes") || exit 0
+
+    case $choice in
+        Journal) journal ;;
+        *.md) notefile=$choice; opennote ;;
+        *!) notefile=$(echo $choice | tr -d '!').md; opennote ;;
+        *) exit 0 ;;
+    esac
+}
+
+pick

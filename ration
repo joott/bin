@@ -1,0 +1,101 @@
+#!/usr/bin/env bash
+
+echo -e "\n\
+      ██████╗  █████╗ ████████╗██╗ ██████╗ ███╗   ██╗\n\
+      ██╔══██╗██╔══██╗╚══██╔══╝██║██╔═══██╗████╗  ██║\n\
+      ██████╔╝███████║   ██║   ██║██║   ██║██╔██╗ ██║\n\
+      ██╔══██╗██╔══██║   ██║   ██║██║   ██║██║╚██╗██║\n\
+      ██║  ██║██║  ██║   ██║   ██║╚██████╔╝██║ ╚████║\n\
+      ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝\n"
+
+SHARE=$HOME/.local/share/rat
+
+if ! [[ -d $SHARE ]]; then
+    mkdir $SHARE
+fi
+
+if ! [[ -f $SHARE/status ]]; then
+    echo 0 > $SHARE/status
+fi
+
+yn_prompt () {
+    while true; do
+        read -p "(y/n): " choice
+        case $choice in
+            [Yy]) echo y; break ;;
+            [Nn]) echo n; break ;;
+        esac
+    done
+}
+
+for_duration () {
+    unset choice duration
+
+    while ! [[ "$duration" =~ ^[0-9]+$ ]]; do
+        echo -n "enter duration in minutes: "
+        read duration
+    done
+
+    echo "the firewall will close after $duration minutes. is this okay?"
+
+    case $(yn_prompt) in
+        y) nohup rat duration $duration > /dev/null & ;;
+        n) for_duration ;;
+    esac
+}
+
+for_task () {
+    while [[ -z "$task" ]]; do
+        echo "what do you need the rat for?"
+        read -p "I am going to: " task
+    done
+
+    echo "is that so?"
+
+    case $(yn_prompt) in
+        y) nohup rat task "$task" > /dev/null & ;;
+        n) for_task ;;
+    esac
+}
+
+for_program () {
+    nohup rofi -run-command 'rat program {cmd}' -show drun > /dev/null &
+}
+
+for_work () {
+    unset response
+    echo "you're not just saying that?"
+    read -p "(I am not): " response
+
+    if [[ "$response" = "I am not" ]]; then
+        nohup rat work > /dev/null &
+    elif [[ "$response" = "I am" ]]; then
+        exit 0
+    else
+        for_work
+    fi
+}
+
+if [[ "$(cat $SHARE/status)" != 0 ]]; then
+    echo "the rat is loose. would you like to snuff it out?"
+    if [[ $(yn_prompt) = y ]]; then
+        nohup rat reset > /dev/null &
+    fi
+    exit 0
+fi
+
+echo "open the firewall for..."
+PS3="selection: "
+
+select choice in "a duration" "a task" "a program" "the work day"; do
+    case $choice in
+        "a duration") for_duration
+            break ;;
+        "a task") for_task
+            break ;;
+        "a program") for_program
+            break ;;
+        "the work day") for_work
+            break ;;
+    esac
+done

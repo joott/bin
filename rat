@@ -1,0 +1,88 @@
+#!/usr/bin/env bash
+
+SHARE=$HOME/.local/share/rat
+
+update_waybar () {
+    killall -35 waybar
+}
+
+cull_rats () {
+    pkill -f -A " $(which rat) "
+}
+
+firewall_set () {
+    case $1 in
+        disable)
+            echo $2 > $SHARE/status
+            sudo ufw disable
+            notify-send "Firewall has been disabled." ;;
+        enable)
+            sudo ufw enable
+            notify-send -u critical "Firewall has been enabled."
+            echo 0 > $SHARE/status
+            update_waybar ;;
+        *) echo "Invalid argument to firewall_set" > /dev/stderr
+            exit 1 ;;
+    esac
+}
+
+for_duration () {
+    cull_rats
+    firewall_set disable 1
+    endtime=$(($1*60+$(date +%s)))
+    echo $endtime > $SHARE/data
+    while [[ $endtime > $(date +%s) ]]; do
+        update_waybar
+        sleep 1
+    done
+    firewall_set enable
+}
+
+for_task () {
+    cull_rats
+    firewall_set disable 2
+    update_waybar
+    while true; do
+        sleep 5m
+        notif="$(notify-send -A open "ask yourself: do I still need the rat to $1?")"
+        if [[ -n "$notif" ]]; then
+            kitty --app-id ration bash -i ration
+            break
+        fi
+    done
+}
+
+for_program () {
+    cull_rats
+    firewall_set disable 3
+    echo $1 > $SHARE/data
+    echo "$*" > $HOME/out
+    update_waybar
+    $@
+    firewall_set enable
+}
+
+for_work () {
+    endtime=$(date -d 1700 +%s)
+    if [[ $(date +%s) > $endtime ]]; then
+        notify-send "It's past work hours!"
+        exit 0
+    fi
+    cull_rats
+    firewall_set disable 4
+    update_waybar
+    while [[ $(date +%s) < $endtime ]]; do
+        sleep 1
+    done
+    firewall_set enable
+}
+
+case $1 in
+    duration) for_duration $2 ;;
+    task) for_task "$2" ;;
+    program) for_program ${@:2} ;;
+    work) for_work ;;
+    reset) cull_rats; firewall_set enable ;;
+    *) echo "Invalid positional parameter" > /dev/stderr
+        exit 1 ;;
+esac
