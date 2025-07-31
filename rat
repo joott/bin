@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+#
+# the world wide web is a mischievous rat which aims to control you
+# I aim to control the rat with ufw
+# user interface handled by my ration script
+#
+
 SHARE=$HOME/.local/share/rat
 
 update_waybar () {
@@ -44,7 +50,7 @@ for_task () {
     update_waybar
     while true; do
         sleep 5m
-        notif="$(notify-send -A open "ask yourself: do I still need the rat to $1?")"
+        notif="$(notify-send -A open "Ask yourself: do I still need the rat to $1?")"
         if [[ -n "$notif" ]]; then
             kitty --app-id ration bash -i ration
             break

@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+#
+# the world wide web is a mischievous rat which aims to control you
+# this script serves to ration the rat
+# it interfaces with my sway and waybar configurations
+#
+
 echo -e "\n\
       ██████╗  █████╗ ████████╗██╗ ██████╗ ███╗   ██╗\n\
       ██╔══██╗██╔══██╗╚══██╔══╝██║██╔═══██╗████╗  ██║\n\
@@ -67,13 +73,11 @@ for_work () {
     echo "you're not just saying that?"
     read -p "(I am not): " response
 
-    if [[ "$response" = "I am not" ]]; then
-        nohup rat work > /dev/null &
-    elif [[ "$response" = "I am" ]]; then
-        exit 0
-    else
-        for_work
-    fi
+    case $response in
+        "I am not") nohup rat work > /dev/null & ;;
+        "I am") exit 0 ;;
+        *) for_work ;;
+    esac
 }
 
 if [[ "$(cat $SHARE/status)" != 0 ]]; then

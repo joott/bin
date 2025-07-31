@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# I love picking my notes
+
 # pass in notes directory as parameter
 NOTEDIR=$1
 SUFFIX=''
