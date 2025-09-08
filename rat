@@ -62,7 +62,6 @@ for_program () {
     cull_rats
     firewall_set disable 3
     echo $1 > $SHARE/data
-    echo "$*" > $HOME/out
     update_waybar
     $@
     firewall_set enable
