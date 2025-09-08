@@ -13,7 +13,7 @@ opennote () {
 journal () {
     cd journal
     SUFFIX=/journal
-    choice=$(echo -e "New\n$(ls -1 *.md)" | rofi -dmenu -p "Entries") || exit 0
+    choice=$(echo -e "New\n$(ls -t1 *.md)" | rofi -dmenu -p "Entries") || exit 0
 
     case $choice in
         New) notefile=$(date +%F_%T.md | tr ':' '-'); opennote ;;
