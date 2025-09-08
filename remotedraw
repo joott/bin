@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+# send a xournalpp document to my tablet/laptop (lena) for editing
+
+tablet=lena
+mountpoint="$(ssh $tablet "echo \$HOME/.local/share/remotedraw")"
+hostname="$(cat /etc/hostname)"
+
+echo $mountpoint
+
+target="$(realpath $1)"
+parentdir="$(dirname $target)"
+filename="$(basename $target)"
+
+echo "sshfs $hostname:$parentdir $mountpoint"
+
+ssh $tablet "sshfs $hostname:$parentdir $mountpoint"
+ssh $tablet "DISPLAY=:0 xournalpp $mountpoint/$filename"
+ssh $tablet "umount $mountpoint"
