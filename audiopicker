@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+dev="$(pactl -f json list sinks | python -c "
+import json, sys
+for dev in json.load(sys.stdin):
+    print(dev['description'])
+" | rofi -dmenu)"
+
+if [ -z "$dev" ]; then
+    exit 0
+fi
+
+name="$(pactl -f json list sinks | python -c"
+import json, sys
+for dev in json.load(sys.stdin):
+    if dev['description'] == sys.argv[1]:
+        print(dev['name'], end='')
+" "$dev")"
+
+pactl set-default-sink $name
