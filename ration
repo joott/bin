@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+
 #
 # the world wide web is a mischievous rat which aims to control you
 # this script serves to ration the rat
@@ -7,12 +8,12 @@
 #
 
 echo -e "\n\
-      ██████╗  █████╗ ████████╗██╗ ██████╗ ███╗   ██╗\n\
-      ██╔══██╗██╔══██╗╚══██╔══╝██║██╔═══██╗████╗  ██║\n\
-      ██████╔╝███████║   ██║   ██║██║   ██║██╔██╗ ██║\n\
-      ██╔══██╗██╔══██║   ██║   ██║██║   ██║██║╚██╗██║\n\
-      ██║  ██║██║  ██║   ██║   ██║╚██████╔╝██║ ╚████║\n\
-      ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝\n"
+        ██████╗  █████╗ ████████╗██╗ ██████╗ ███╗   ██╗\n\
+        ██╔══██╗██╔══██╗╚══██╔══╝██║██╔═══██╗████╗  ██║\n\
+        ██████╔╝███████║   ██║   ██║██║   ██║██╔██╗ ██║\n\
+        ██╔══██╗██╔══██║   ██║   ██║██║   ██║██║╚██╗██║\n\
+        ██║  ██║██║  ██║   ██║   ██║╚██████╔╝██║ ╚████║\n\
+        ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝\n"
 
 SHARE=$HOME/.local/share/rat
 
@@ -34,8 +35,28 @@ yn_prompt () {
     done
 }
 
+generate_words () {
+    echo "$(shuf -n 10 /usr/share/dict/wordle | tr '\n' ' ' | sed -e 's/ $//')"
+}
+
+rand_prompt () {
+    unset response
+    echo "# $1"
+    while true; do
+        read -p "> " response
+        case $response in
+            $1) break ;;
+            *) echo ERR; rand_prompt "$1"; break ;;
+        esac
+    done
+}
+
 for_duration () {
     unset choice duration
+
+    words="$(generate_words)"
+    echo "repeat after me:"
+    rand_prompt "$words"
 
     while ! [[ "$duration" =~ ^[0-9]+$ ]]; do
         echo -n "enter duration in minutes: "
